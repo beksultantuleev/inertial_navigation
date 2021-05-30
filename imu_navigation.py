@@ -18,7 +18,7 @@ class Internal_navigation:
 
         self.RAD_TO_DEG = 57.29578
         self.M_PI = math.pi
-        self.G_GAIN = 0.070          # [deg/s/LSB]  If you change the dps for gyro, you need to update this value accordingly
+        self.G_GAIN = 1         # [deg/s/LSB]  If you change the dps for gyro, you need to update this value accordingly
         self.AA =  0.40              # Complementary filter constant
         self.MAG_LPF_FACTOR = 0.4    # Low pass filter constant magnetometer
         self.ACC_LPF_FACTOR = 0.4    # Low pass filter constant for accelerometer

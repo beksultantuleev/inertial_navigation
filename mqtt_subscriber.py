@@ -17,6 +17,7 @@ class MqttSubscriber:
         self.start_loc = None
         self.end_loc = None
         self.pos = [] #[0,0,0]
+        self.pos_nested = []
         self.checker = False
 
     def __on_connect(self, client, userdata, flags, rc):
@@ -30,8 +31,8 @@ class MqttSubscriber:
         # print(message.topic)
         data = message.payload[1:-1].decode("utf-8").split(",") #change here
         # print(data)
-        # self.pos = [float(data[0]), float(data[1]), float(data[2])] #for old type
-        self.pos = np.array([[float(data[0])], [float(data[1])], [float(data[2])]])
+        self.pos = [float(data[0]), float(data[1]), float(data[2])] #for old type
+        self.pos_nested = np.array([[float(data[0])], [float(data[1])], [float(data[2])]])
         # self.lis = [self.pos[0], self.pos[1], self.pos[2]]
         self.checker = True
 
@@ -52,7 +53,7 @@ class MqttSubscriber:
     #     return
 
 if __name__ == '__main__':
-    mqttSubscriber = MqttSubscriber("localhost", topic="magnetometer")
+    mqttSubscriber = MqttSubscriber("localhost", topic="magnetometer_LSM303AGR")
     mqttSubscriber.start()
     # tmp = mqttSubscriber.pos
     # tmp1 = tmp
@@ -60,7 +61,7 @@ if __name__ == '__main__':
     while(1):
         # print(tmp[:-2])
         # print(tmp[:-2])
-        print(mqttSubscriber.pos)
+        print(mqttSubscriber.pos_nested)
         # print(mqttSubscriber.pos[0:1])
         time.sleep(0.3)
         print(mqttSubscriber.checker)

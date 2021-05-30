@@ -202,18 +202,18 @@ accelerometer = MqttSubscriber("localhost", topic="accelerometer_LSM6DSL") #_LSM
 accelerometer.start()
 
 while True:
-    if magnetometer.pos and gyroscope.pos and accelerometer.pos:
-        print(magnetometer.pos[0])
+    if magnetometer.pos_nested and gyroscope.pos_nested and accelerometer.pos_nested:
+        print(magnetometer.pos_nested[0])
         # #Read the accelerometer,gyroscope and magnetometer values
-        ACCx = accelerometer.pos[0]/1000
-        ACCy = accelerometer.pos[1]/1000
-        ACCz = accelerometer.pos[2]/1000
-        GYRx = gyroscope.pos[0]/1000
-        GYRy = gyroscope.pos[1]/1000
-        GYRz = gyroscope.pos[2]/1000
-        MAGx = magnetometer.pos[0]/1000
-        MAGy = magnetometer.pos[1]/1000
-        MAGz = magnetometer.pos[2]/1000
+        ACCx = accelerometer.pos_nested[0]
+        ACCy = accelerometer.pos_nested[1]
+        ACCz = accelerometer.pos_nested[2]
+        GYRx = gyroscope.pos_nested[0]
+        GYRy = gyroscope.pos_nested[1]
+        GYRz = gyroscope.pos_nested[2]
+        MAGx = magnetometer.pos_nested[0]
+        MAGy = magnetometer.pos_nested[1]
+        MAGz = magnetometer.pos_nested[2]
 
 
         #Apply compass calibration

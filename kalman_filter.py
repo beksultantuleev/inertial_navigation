@@ -83,7 +83,7 @@ if __name__ == "__main__":
     q = np.zeros((3, 1))
     p = np.zeros((3, 3))
     state = KalmanFilterUWB(q)
-    accelerometer = MqttSubscriber("localhost", topic="accelerometer_phone")
+    accelerometer = MqttSubscriber("localhost", topic="accelerometer_LSM303AGR")
     accelerometer.start()
     First_time = True
     while True:
