@@ -116,6 +116,7 @@ def kalmanFilterY ( accAngle, gyroRate, DT):
 
     return KFangleY
 
+
 def kalmanFilterX ( accAngle, gyroRate, DT):
     x=0.0
     S=0.0
@@ -193,28 +194,26 @@ mag_medianTable2Z = [1] * MAG_MEDIANTABLESIZE
 #     sys.exit()
 # IMU.initIMU()       #Initialise the accelerometer, gyroscope and compass
 
-magnetometer = MqttSubscriber("localhost", topic="magnetometer")
+magnetometer = MqttSubscriber("localhost", topic="magnetometer_LSM303AGR")
 magnetometer.start()
-
-gyroscope = MqttSubscriber("localhost", topic="gyroscope")
+gyroscope = MqttSubscriber("localhost", topic="gyroscope_LSM6DSL")
 gyroscope.start()
-
-accelerometer = MqttSubscriber("localhost", topic="accelerometer")
+accelerometer = MqttSubscriber("localhost", topic="accelerometer_LSM6DSL") #_LSM6DSL #_LSM303AGR
 accelerometer.start()
 
 while True:
     if magnetometer.pos and gyroscope.pos and accelerometer.pos:
         print(magnetometer.pos[0])
         # #Read the accelerometer,gyroscope and magnetometer values
-        ACCx = accelerometer.pos[0]
-        ACCy = accelerometer.pos[1]
-        ACCz = accelerometer.pos[2]
-        GYRx = gyroscope.pos[0]
-        GYRy = gyroscope.pos[1]
-        GYRz = gyroscope.pos[2]
-        MAGx = magnetometer.pos[0]
-        MAGy = magnetometer.pos[1]
-        MAGz = magnetometer.pos[2]
+        ACCx = accelerometer.pos[0]/1000
+        ACCy = accelerometer.pos[1]/1000
+        ACCz = accelerometer.pos[2]/1000
+        GYRx = gyroscope.pos[0]/1000
+        GYRy = gyroscope.pos[1]/1000
+        GYRz = gyroscope.pos[2]/1000
+        MAGx = magnetometer.pos[0]/1000
+        MAGy = magnetometer.pos[1]/1000
+        MAGz = magnetometer.pos[2]/1000
 
 
         #Apply compass calibration
@@ -304,9 +303,9 @@ while True:
         mag_medianTable2Z.sort()
 
         # The middle value is the value we are interested in
-        MAGx = mag_medianTable2X[int(MAG_MEDIANTABLESIZE/2)];
-        MAGy = mag_medianTable2Y[int(MAG_MEDIANTABLESIZE/2)];
-        MAGz = mag_medianTable2Z[int(MAG_MEDIANTABLESIZE/2)];
+        MAGx = mag_medianTable2X[int(MAG_MEDIANTABLESIZE/2)]
+        MAGy = mag_medianTable2Y[int(MAG_MEDIANTABLESIZE/2)]
+        MAGz = mag_medianTable2Z[int(MAG_MEDIANTABLESIZE/2)]
 
 
 
@@ -343,7 +342,7 @@ while True:
         kalmanY = kalmanFilterY(AccYangle, rate_gyr_y,LP)
         kalmanX = kalmanFilterX(AccXangle, rate_gyr_x,LP)
 
-        print(f"kalman > x: {kalmanX}, y: {kalmanY}")
+        # print(f"kalman > x: {kalmanX}, y: {kalmanY}")
         # print(f"complementary > x: {CFangleX}, y: {CFangleY}")
 
         #Calculate heading
@@ -369,49 +368,49 @@ while True:
         #Calculate the new tilt compensated values
         #The compass and accelerometer are orientated differently on the the BerryIMUv1, v2 and v3.
         #This needs to be taken into consideration when performing the calculations
+        BerryIMUversion = 2
+        #X compensation
+        if(BerryIMUversion == 1 or BerryIMUversion == 3):            #LSM9DS0 and (LSM6DSL & LIS2MDL)
+            magXcomp = MAGx*math.cos(pitch)+MAGz*math.sin(pitch)
+        else:                                                                #LSM9DS1
+            magXcomp = MAGx*math.cos(pitch)-MAGz*math.sin(pitch)
 
-        # #X compensation
-        # if(IMU.BerryIMUversion == 1 or IMU.BerryIMUversion == 3):            #LSM9DS0 and (LSM6DSL & LIS2MDL)
-        #     magXcomp = MAGx*math.cos(pitch)+MAGz*math.sin(pitch)
-        # else:                                                                #LSM9DS1
-        #     magXcomp = MAGx*math.cos(pitch)-MAGz*math.sin(pitch)
-
-        # #Y compensation
-        # if(IMU.BerryIMUversion == 1 or IMU.BerryIMUversion == 3):            #LSM9DS0 and (LSM6DSL & LIS2MDL)
-        #     magYcomp = MAGx*math.sin(roll)*math.sin(pitch)+MAGy*math.cos(roll)-MAGz*math.sin(roll)*math.cos(pitch)
-        # else:                                                                #LSM9DS1
-        #     magYcomp = MAGx*math.sin(roll)*math.sin(pitch)+MAGy*math.cos(roll)+MAGz*math.sin(roll)*math.cos(pitch)
-
-
+        #Y compensation
+        if(BerryIMUversion == 1 or BerryIMUversion == 3):            #LSM9DS0 and (LSM6DSL & LIS2MDL)
+            magYcomp = MAGx*math.sin(roll)*math.sin(pitch)+MAGy*math.cos(roll)-MAGz*math.sin(roll)*math.cos(pitch)
+        else:                                                                #LSM9DS1
+            magYcomp = MAGx*math.sin(roll)*math.sin(pitch)+MAGy*math.cos(roll)+MAGz*math.sin(roll)*math.cos(pitch)
 
 
 
-        # #Calculate tilt compensated heading
-        # tiltCompensatedHeading = 180 * math.atan2(magYcomp,magXcomp)/M_PI
-
-        # if tiltCompensatedHeading < 0:
-        #     tiltCompensatedHeading += 360
 
 
-        # ##################### END Tilt Compensation ########################
+        #Calculate tilt compensated heading
+        tiltCompensatedHeading = 180 * math.atan2(magYcomp,magXcomp)/M_PI
+
+        if tiltCompensatedHeading < 0:
+            tiltCompensatedHeading += 360
 
 
-        # if 1:                       #Change to '0' to stop showing the angles from the accelerometer
-        #     outputString += "#  ACCX Angle %5.2f ACCY Angle %5.2f  #  " % (AccXangle, AccYangle)
+        ##################### END Tilt Compensation ########################
 
-        # if 1:                       #Change to '0' to stop  showing the angles from the gyro
-        #     outputString +="\t# GRYX Angle %5.2f  GYRY Angle %5.2f  GYRZ Angle %5.2f # " % (gyroXangle,gyroYangle,gyroZangle)
 
-        # if 1:                       #Change to '0' to stop  showing the angles from the complementary filter
-        #     outputString +="\t#  CFangleX Angle %5.2f   CFangleY Angle %5.2f  #" % (CFangleX,CFangleY)
+        if 1:                       #Change to '0' to stop showing the angles from the accelerometer
+            outputString += "#  ACCX Angle %5.2f ACCY Angle %5.2f  #  " % (AccXangle, AccYangle)
 
-        # if 1:                       #Change to '0' to stop  showing the heading
-        #     outputString +="\t# HEADING %5.2f  tiltCompensatedHeading %5.2f #" % (heading,tiltCompensatedHeading)
+        if 1:                       #Change to '0' to stop  showing the angles from the gyro
+            outputString +="\t# GRYX Angle %5.2f  GYRY Angle %5.2f  GYRZ Angle %5.2f # " % (gyroXangle,gyroYangle,gyroZangle)
 
-        # if 1:                       #Change to '0' to stop  showing the angles from the Kalman filter
-        #     outputString +="# kalmanX %5.2f   kalmanY %5.2f #" % (kalmanX,kalmanY)
+        if 1:                       #Change to '0' to stop  showing the angles from the complementary filter
+            outputString +="\t#  CFangleX Angle %5.2f   CFangleY Angle %5.2f  #" % (CFangleX,CFangleY)
 
-        # print(outputString)
+        if 1:                       #Change to '0' to stop  showing the heading
+            outputString +="\t# HEADING %5.2f  tiltCompensatedHeading %5.2f #" % (heading,tiltCompensatedHeading)
 
-        # #slow program down a bit, makes the output more readable
-        # time.sleep(0.3)
+        if 1:                       #Change to '0' to stop  showing the angles from the Kalman filter
+            outputString +="# kalmanX %5.2f   kalmanY %5.2f #" % (kalmanX,kalmanY)
+
+        print(outputString)
+
+        #slow program down a bit, makes the output more readable
+        time.sleep(0.2)

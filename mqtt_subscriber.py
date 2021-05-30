@@ -1,7 +1,7 @@
 import paho.mqtt.client as mqtt
 import threading
 import time
-
+import numpy as np
 
 class MqttSubscriber:
     def __init__(self, brokerip=None, brokerport=1883, topic=None):
@@ -30,7 +30,8 @@ class MqttSubscriber:
         # print(message.topic)
         data = message.payload[1:-1].decode("utf-8").split(",") #change here
         # print(data)
-        self.pos = [float(data[0]), float(data[1]), float(data[2])]
+        # self.pos = [float(data[0]), float(data[1]), float(data[2])] #for old type
+        self.pos = np.array([[float(data[0])], [float(data[1])], [float(data[2])]])
         # self.lis = [self.pos[0], self.pos[1], self.pos[2]]
         self.checker = True
 
