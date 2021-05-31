@@ -40,6 +40,10 @@ class MqttSubscriber:
         thread = threading.Thread(target=self.__subscribe)
         thread.start()
 
+    # def __on_publish(self, topic, payload):
+    #     # self.__client.connect(self.__brokerip, self.__brokerport)
+    #     self.__client.publish(topic, payload)
+
     def __subscribe(self):
         self.__client.connect(self.__brokerip, self.__brokerport)
         self.__client.loop_forever()
@@ -53,15 +57,15 @@ class MqttSubscriber:
     #     return
 
 if __name__ == '__main__':
-    mqttSubscriber = MqttSubscriber("localhost", topic="magnetometer_LSM303AGR")
+    mqttSubscriber = MqttSubscriber("localhost", topic="magnetometer_phone")
     mqttSubscriber.start()
     # tmp = mqttSubscriber.pos
     # tmp1 = tmp
-    
-    while(1):
-        # print(tmp[:-2])
-        # print(tmp[:-2])
-        print(mqttSubscriber.pos_nested)
-        # print(mqttSubscriber.pos[0:1])
-        time.sleep(0.3)
-        print(mqttSubscriber.checker)
+    mqttSubscriber.__on_publish("test_pulication", "this is message")
+    # while(1):
+        
+
+    #     # print(mqttSubscriber.pos_nested)
+
+    #     time.sleep(0.3)
+    #     print(mqttSubscriber.checker)

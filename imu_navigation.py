@@ -4,7 +4,7 @@ import time
 from mqtt_subscriber import MqttSubscriber
 
 
-class Internal_navigation:
+class Inertial_navigation:
     def __init__(self):
         "mqtt initiation"
         self.magnetometer = MqttSubscriber("localhost", topic="magnetometer_LSM303AGR")
@@ -148,7 +148,7 @@ class Internal_navigation:
             self.MAGz = test.magnetometer.pos[2]/1000
 
 if __name__ == "__main__":
-    test = Internal_navigation()
+    test = Inertial_navigation()
     while True:
 
         lp = test.loop_time()

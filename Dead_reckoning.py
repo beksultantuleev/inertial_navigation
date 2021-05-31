@@ -42,7 +42,7 @@ class Dead_Reckoning():
         g = 9.81
         self.gravity = np.array([[0],
                                  [0],
-                                 [-1*g]])
+                                 [1*g]])
         self.x = [0]
         self.y = [0]
         self.z = [0]
@@ -96,7 +96,7 @@ class Dead_Reckoning():
         self.y.append(float(new_global_pos[1]))
         self.z.append(float(new_global_pos[2]))
         print(f"X>>: {self.x[-1]}, Y>>: {self.y[-1]}, Z>>: {self.z[-1]}")
-        # print(f"velX>>: {new_global_vel[0]}, velY>>: {new_global_vel[1]}, velZ>>: {new_global_vel[2]}")
+        print(f"velX>>: {new_global_vel[0]}, velY>>: {new_global_vel[1]}, velZ>>: {new_global_vel[2]}")
 
         # print("X>>>: " + str(float(new_global_pos[0])))
         # print("Y>>>: " + str(float(new_global_pos[1])))
@@ -131,9 +131,9 @@ class Dead_Reckoning():
         ax.set_xlabel('$X$')
         ax.set_ylabel('$Y$')
         ax.set_zlabel('$Z$')
-        # ax.set_xlim(-0.05,0.05)
-        # ax.set_ylim(-0.05,0.05)
-        # ax.set_zlim(-0.5,0.5)
+        ax.set_xlim(-1,1)
+        ax.set_ylim(-1,1)
+        ax.set_zlim(-1,1)
         ax.set_title(
             "Dead Reckoning from Raw Accelerometer and Gyroscope Modules - Simulation")
         ax.scatter(self.x, self.y, self.z, s=[0.2]*len(self.x))
@@ -145,24 +145,31 @@ class Dead_Reckoning():
 if __name__ == "__main__":
     from mqtt_subscriber import MqttSubscriber
     import time
-    "mqtt initiation"
-    magnetometer = MqttSubscriber("localhost", topic="magnetometer_LSM303AGR")
-    magnetometer.start()
-    gyroscope = MqttSubscriber("localhost", topic="gyroscope_LSM6DSL")
-    gyroscope.start()
-    accelerometer = MqttSubscriber("localhost", topic="accelerometer_LSM6DSL")
-    # accelerometer = MqttSubscriber("localhost", topic="accelerometer_LSM303AGR")
-    accelerometer.start()
+    phone = False
+    if phone:
+        "mqtt initiation"
+        magnetometer = MqttSubscriber("localhost", topic="magnetometer_phone")
+        magnetometer.start()
+        gyroscope = MqttSubscriber("localhost", topic="gyroscope_phone")
+        gyroscope.start()
+        accelerometer = MqttSubscriber("localhost", topic="accelerometer_phone")
+        accelerometer.start()
+    else:
+        magnetometer = MqttSubscriber("localhost", topic="magnetometer_LSM303AGR")
+        magnetometer.start()
+        gyroscope = MqttSubscriber("localhost", topic="gyroscope_LSM6DSL")
+        gyroscope.start()
+        # accelerometer = MqttSubscriber("localhost", topic="accelerometer_LSM6DSL")
+        accelerometer = MqttSubscriber("localhost", topic="accelerometer_LSM303AGR")
+        accelerometer.start()
+
     step = 0
-    delta_t = 0.03
+    delta_t = 0.006
     test = Dead_Reckoning()
     while step < 100:
-        # if len(accelerometer.pos)>0:
-        # 	print(accelerometer.pos)
-        if len(magnetometer.pos_nested) > 0 and len(accelerometer.pos_nested) > 0 and len(gyroscope.pos_nested) > 0:
-            time.sleep(0.2)
-            # print(magnetometer.pos, step)
 
+        if len(magnetometer.pos_nested) > 0 and len(accelerometer.pos_nested) > 0 and len(gyroscope.pos_nested) > 0:
+            time.sleep(0.1)
             test.simulate(accelerometer.pos_nested,
                           gyroscope.pos_nested, delta_t)
             step += 1
