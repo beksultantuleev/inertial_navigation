@@ -69,7 +69,7 @@ class Mqtt_Manager:
 if __name__=="__main__":
     test = Mqtt_Manager("localhost", 1883)
     test.connect()
-    test.subs("accelerometer_LSM303AGR")#gyroscope_LSM6DSL
+    test.subs("accelerometer_LSM303AGR", "gyroscope_LSM6DSL")#gyroscope_LSM6DSL
     # test.subs("gyroscope_LSM6DSL")
     while True:
         time.sleep(0.1)
