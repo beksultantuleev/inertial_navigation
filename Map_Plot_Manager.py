@@ -21,17 +21,18 @@ class Plot_manager:
 
     def animate(self, i):
         if len(self.mqtt.processed_data) > 0:
-            tag = 0
+            tag = 1
             ax = plt.gca()
             ax.cla()
             plt.title("Real time map")
+            "calculate distance"
             euclid_dist_between_points = cdist(
                 self.mqtt.processed_data, self.mqtt.processed_data, "euclidean")
             distances = set(
                 euclid_dist_between_points[np.triu_indices_from(euclid_dist_between_points)])
             distances.remove(0)
             distances_list = list(distances)
-            print(distances_list)
+            # print(distances_list)
             for positions in self.mqtt.processed_data:
                 ax.plot(positions[0], positions[1],
                         label='movement', linestyle="--", alpha=0.5)
@@ -41,9 +42,12 @@ class Plot_manager:
                 circle = plt.Circle(
                     (positions[0], positions[1]), 0.5, color='b', fill=False)
                 ax.add_patch(circle)
-                if distances_list[tag-1]<1:
-                    plt.text(1,1, "mind distance!!")
+                # print(distances_list)
                 tag += 1
+            for d in distances_list:
+                if d<1:
+                    plt.text(3,1, f"mind distance!", color = "r")
+                    self.mqtt.publish("distance", "warning")
 
             # on y axis (horizontal)
             plt.axhline(self.room_size[0], color="#01BFDA")
